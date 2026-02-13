@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "LightJournal",
+  "version": "0.1.0",
+  "description": "Opens LightJournal",
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_title": "Open LightJournal"
+  },
+  "background": {
+    "service_worker": "service_worker.js"
+  }
+}
