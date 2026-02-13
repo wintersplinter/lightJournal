@@ -1,0 +1,21 @@
+{
+  "name": "LightJournal",
+  "short_name": "LightJournal",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#121416",
+  "theme_color": "#121416",
+  "description": "Minimal encrypted journaling stored in your own Google Drive.",
+  "icons": [
+    {
+      "src": "icon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
