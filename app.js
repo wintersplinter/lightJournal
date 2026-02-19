@@ -25,6 +25,7 @@ const overlayFrame = document.getElementById("overlayFrame");
 const overlayClose = document.getElementById("overlayClose");
 const linkPrivacy = document.getElementById("linkPrivacy");
 const linkInstructions = document.getElementById("linkInstructions");
+const linkTerms = document.getElementById("linkTerms");
 const toggleShowPass = document.getElementById("toggleShowPass");
 
 // console.log("screens:", screenConnect, screenMain);
@@ -43,6 +44,30 @@ function setStatus(msg) {
   statusEl.textContent = msg;
 }
 
+async function driveFetch(url, options = {}) {
+  const r = await fetch(url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...(options.headers || {}),
+    },
+  });
+
+  if (r.status === 401) {
+    accessToken = null;
+    journalFileId = null;
+    showLanding();
+    setStatus("Session expired. Please reconnect to Drive.");
+    throw new Error("Unauthorized");
+  }
+
+  if (!r.ok) {
+    throw new Error(await r.text());
+  }
+
+  return r;
+}
+
 async function driveListAppDataFilesByName(name) {
   const q = `name='${name.replaceAll("'", "\\'")}' and trashed=false`;
   const url =
@@ -50,10 +75,7 @@ async function driveListAppDataFilesByName(name) {
     `?spaces=appDataFolder&q=${encodeURIComponent(q)}` +
     "&fields=files(id,name,modifiedTime,size)";
 
-  const r = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  if (!r.ok) throw new Error("Drive list failed: " + (await r.text()));
+  const r = await driveFetch(url);
   return (await r.json()).files ?? [];
 }
 
@@ -73,42 +95,36 @@ async function driveCreateAppDataFile(
     `\r\n` +
     `--${boundary}--`;
 
-  const r = await fetch(
+  const r = await driveFetch(
     "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${accessToken}`,
         "Content-Type": `multipart/related; boundary=${boundary}`,
       },
       body,
     },
   );
-  if (!r.ok) throw new Error("Drive create failed: " + (await r.text()));
+
   const data = await r.json();
   return data.id;
 }
 
 async function driveDownloadFile(fileId) {
   const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
-  const r = await fetch(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  if (!r.ok) throw new Error("Drive download failed: " + (await r.text()));
+  const r = await driveFetch(url);
   return await r.text();
 }
 
 async function driveUploadFile(fileId, content, mimeType = "application/json") {
   const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
-  const r = await fetch(url, {
+  const r = await driveFetch(url, {
     method: "PATCH",
     headers: {
-      Authorization: `Bearer ${accessToken}`,
       "Content-Type": mimeType,
     },
     body: content,
   });
-  if (!r.ok) throw new Error("Drive upload failed: " + (await r.text()));
 }
 
 function openOverlay(url) {
@@ -129,6 +145,11 @@ linkPrivacy.addEventListener("click", (e) => {
 linkInstructions.addEventListener("click", (e) => {
   e.preventDefault();
   openOverlay("./instructions.html");
+});
+
+linkTerms.addEventListener("click", (e) => {
+  e.preventDefault();
+  openOverlay("./terms.html");
 });
 
 function nowIso() {
@@ -396,8 +417,8 @@ window.addEventListener("load", () => {
   });
 
   btnLogin.addEventListener("click", () => {
-    setStatus("Requesting permission…");
-    tokenClient.requestAccessToken({ prompt: "consent" });
+    setStatus("Connecting to Drive…");
+    tokenClient.requestAccessToken();
   });
 
   btnLoginLanding.addEventListener("click", () => {
