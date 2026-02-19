@@ -14,52 +14,90 @@
   </head>
   <body>
     <main>
-      <h1>LightJournal</h1>
+      <!-- h1>LightJournal</h1 -->
 
-      <button id="btnLogin">Connect Google Drive</button>
-      <p id="status">Not connected</p>
+      <div class="toplinks">
+        <a href="#" id="linkPrivacy">Privacy statement</a>
+        &nbsp;|&nbsp;
+        <a href="#" id="linkInstructions">Instructions</a>
+      </div>
 
-      <hr />
+      <div id="screenConnect" style="display: none">
+        <div class="centerBox">
+          <h1 class="landingTitle">LightJournal</h1>
+          <button id="btnLoginLanding">Connect to Google Drive</button>
+        </div>
+      </div>
 
-      <form id="authForm" onsubmit="return false;">
+      <div id="screenMain">
+        <button id="btnLogin" style="display: none">
+          Connect Google Drive
+        </button>
+
+        <p id="status">Not connected</p>
+
+        <hr />
+
+        <form id="authForm" onsubmit="return false;">
+          <label>
+            <!--Passphrase:-->
+
+            <label style="display: block; margin-top: 8px; opacity: 0.9">
+              <input type="checkbox" id="toggleShowPass" />
+              Show journal passphrase (key to your encrypted journal)
+            </label>
+
+            <input
+              type="text"
+              name="username"
+              autocomplete="no-username"
+              style="display: none"
+            />
+
+            <input
+              id="pass"
+              name="lightjournal-passphrase"
+              type="password"
+              autocomplete="current-password"
+            />
+          </label>
+        </form>
+
+        <br /><br />
+
         <label>
-          Passphrase:
-          <input
-            id="pass"
-            name="lightjournal-passphrase"
-            type="password"
-            autocomplete="current-password"
-          />
+          New post (Markdown):
+          <textarea id="editor" rows="10" style="width: 100%"></textarea>
         </label>
-      </form>
 
-      <br /><br />
+        <label style="display: block; margin-top: 8px">
+          <input type="checkbox" id="previewToggle" checked />
+          Live preview (latest)
+        </label>
 
-      <label>
-        New post (Markdown):
-        <textarea id="editor" rows="10" style="width: 100%"></textarea>
-      </label>
+        <div
+          id="preview"
+          style="border: 1px solid #ddd; padding: 12px; margin-top: 8px"
+        ></div>
 
-      <label style="display: block; margin-top: 8px">
-        <input type="checkbox" id="previewToggle" checked />
-        Live preview
-      </label>
+        <br />
 
-      <div
-        id="preview"
-        style="border: 1px solid #ddd; padding: 12px; margin-top: 8px"
-      ></div>
+        <button id="btnUnlock">Unlock / Load posts</button>
 
-      <br />
+        <button id="btnSave" disabled>Save post</button>
 
-      <button id="btnUnlock">Unlock / Load posts</button>
+        <hr />
 
-      <button id="btnSave" disabled>Save post</button>
+        <h2>Posts</h2>
+        <div id="posts"></div>
+      </div>
 
-      <hr />
-
-      <h2>Posts</h2>
-      <div id="posts"></div>
+      <div id="overlay" class="overlay" style="display: none">
+        <div class="overlayBox">
+          <button id="overlayClose">Close</button>
+          <iframe id="overlayFrame"></iframe>
+        </div>
+      </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

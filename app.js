@@ -1,4 +1,5 @@
 // console.log("marked:", typeof marked, "DOMPurify:", typeof DOMPurify);
+// console.log("APP.JS LOADED — landing debug v1");
 
 import { encryptString, decryptString } from "./crypto.js";
 
@@ -16,6 +17,17 @@ const postsEl = document.getElementById("posts");
 const btnUnlock = document.getElementById("btnUnlock");
 const previewToggleEl = document.getElementById("previewToggle");
 const previewEl = document.getElementById("preview");
+const screenConnect = document.getElementById("screenConnect");
+const screenMain = document.getElementById("screenMain");
+const btnLoginLanding = document.getElementById("btnLoginLanding");
+const overlay = document.getElementById("overlay");
+const overlayFrame = document.getElementById("overlayFrame");
+const overlayClose = document.getElementById("overlayClose");
+const linkPrivacy = document.getElementById("linkPrivacy");
+const linkInstructions = document.getElementById("linkInstructions");
+const toggleShowPass = document.getElementById("toggleShowPass");
+
+// console.log("screens:", screenConnect, screenMain);
 
 let accessToken = null;
 let tokenClient = null;
@@ -98,6 +110,26 @@ async function driveUploadFile(fileId, content, mimeType = "application/json") {
   });
   if (!r.ok) throw new Error("Drive upload failed: " + (await r.text()));
 }
+
+function openOverlay(url) {
+  overlayFrame.src = url;
+  overlay.style.display = "flex";
+}
+
+overlayClose.addEventListener("click", () => {
+  overlay.style.display = "none";
+  overlayFrame.src = "";
+});
+
+linkPrivacy.addEventListener("click", (e) => {
+  e.preventDefault();
+  openOverlay("./privacy.html");
+});
+
+linkInstructions.addEventListener("click", (e) => {
+  e.preventDefault();
+  openOverlay("./instructions.html");
+});
 
 function nowIso() {
   return new Date().toISOString();
@@ -183,7 +215,7 @@ function scheduleAutoLoad() {
     } catch (e) {
       // Ignore stale errors
       if (mySeq !== loadSeq) return;
-
+      if (handleDriveAuthError(e)) return;
       setStatus("Error: " + humanError(e));
     }
   }, 350);
@@ -201,6 +233,49 @@ function humanError(e) {
     return "Wrong passphrase (or corrupted data).";
   return msg;
 }
+
+function handleDriveAuthError(err) {
+  const msg = String(err);
+
+  // Google returns 401 or invalid_token when expired
+  if (
+    msg.includes("401") ||
+    msg.includes("invalid_token") ||
+    msg.includes("Login Required")
+  ) {
+    accessToken = null;
+    journalFileId = null;
+
+    setStatus("Connection expired. Please reconnect to Drive.");
+    showLanding();
+    return true;
+  }
+
+  return false;
+}
+
+function showLanding() {
+  screenConnect.style.display = "block";
+  screenMain.style.display = "none";
+}
+
+function showMain() {
+  screenConnect.style.display = "none";
+  screenMain.style.display = "block";
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+
+  // When returning to the app, attempt to continue smoothly.
+  if (!accessToken) {
+    showLanding();
+    return;
+  }
+
+  // If connected, try to load journal if passphrase is present.
+  scheduleAutoLoad();
+});
 
 async function sha256Hex(text) {
   const data = new TextEncoder().encode(text);
@@ -235,10 +310,19 @@ async function loadAndRender(passphrase) {
   for (const p of posts) {
     const dt = new Date(p.ts);
 
+    const dateStr = dt.toLocaleString(undefined, {
+      weekday: "long",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
     const el = document.createElement("article");
     el.className = "post";
     el.innerHTML = `
-    <div class="meta">${dt.toLocaleString()}</div>
+    <div class="meta">${dateStr}</div>
     <div class="body">${renderMarkdown(p.md)}</div>
   `;
     frag.appendChild(el);
@@ -283,26 +367,29 @@ async function selectJournalIfExists(name) {
 }
 
 window.addEventListener("load", () => {
+  showLanding();
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
     callback: async (resp) => {
       try {
         if (resp.error) {
-          setStatus("Token error: " + resp.error);
+          accessToken = null;
+          setStatus("Not connected");
+          showLanding();
           return;
         }
+
         accessToken = resp.access_token;
-        setStatus("Drive connected ✅ (press Unlock to load)");
-        scheduleAutoLoad();
-        btnSave.disabled = true; // until passphrase + file exist
+
+        showMain();
+        btnSave.disabled = true;
         setStatus("Drive connected ✅ (enter passphrase)");
 
-        const pass = passEl.value;
-        if (pass) await loadAndRender(pass);
-        else setStatus("Drive connected ✅ (enter passphrase to load)");
+        scheduleAutoLoad();
       } catch (e) {
         console.error(e);
+        if (handleDriveAuthError(e)) return;
         setStatus("Error: " + humanError(e));
       }
     },
@@ -313,7 +400,11 @@ window.addEventListener("load", () => {
     tokenClient.requestAccessToken({ prompt: "consent" });
   });
 
-  setStatus("Not connected");
+  btnLoginLanding.addEventListener("click", () => {
+    btnLogin.click();
+  });
+
+  //* setStatus("Not connected");
 
   btnSave.addEventListener("click", async () => {
     try {
@@ -354,6 +445,7 @@ window.addEventListener("load", () => {
       await loadAndRender(pass);
     } catch (e) {
       console.error(e);
+      if (handleDriveAuthError(e)) return;
       setStatus("Error: " + humanError(e));
     } finally {
       btnSave.disabled = false;
@@ -378,8 +470,13 @@ window.addEventListener("load", () => {
       await loadAndRender(pass);
     } catch (e) {
       console.error(e);
+      if (handleDriveAuthError(e)) return;
       setStatus("Error: " + humanError(e));
     }
+  });
+
+  toggleShowPass.addEventListener("change", () => {
+    passEl.type = toggleShowPass.checked ? "text" : "password";
   });
 
   editorEl.addEventListener("input", updatePreview);
