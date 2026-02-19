@@ -152,6 +152,19 @@ button:disabled {
   background: white;
 }
 
+.account-info {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.btn-secondary {
+  margin-top: 10px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
 #overlayClose {
   align-self: flex-end;
   margin: 10px;

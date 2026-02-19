@@ -27,18 +27,26 @@ const linkPrivacy = document.getElementById("linkPrivacy");
 const linkInstructions = document.getElementById("linkInstructions");
 const linkTerms = document.getElementById("linkTerms");
 const toggleShowPass = document.getElementById("toggleShowPass");
-
-// console.log("screens:", screenConnect, screenMain);
+const DRAFT_KEY = "lightjournal_draft";
+const btnDisconnect = document.getElementById("btnDisconnect");
 
 let accessToken = null;
 let tokenClient = null;
 let journalFileId = null;
-
 let autoLoadTimer = null;
 let lastLoadedPass = null;
-
 let loadSeq = 0;
 let currentJournalName = "journal.enc";
+
+editorEl.addEventListener("input", () => {
+  localStorage.setItem(DRAFT_KEY, editorEl.value);
+});
+
+// Restore draft on load
+const savedDraft = localStorage.getItem(DRAFT_KEY);
+if (savedDraft) {
+  editorEl.value = savedDraft;
+}
 
 function setStatus(msg) {
   statusEl.textContent = msg;
@@ -460,6 +468,8 @@ window.addEventListener("load", () => {
       setStatus("Uploading…");
       await driveUploadFile(journalFileId, updatedEnc, "application/json");
 
+      localStorage.removeItem(DRAFT_KEY);
+
       editorEl.value = "";
       setStatus("Saved ✅");
 
@@ -494,6 +504,15 @@ window.addEventListener("load", () => {
       if (handleDriveAuthError(e)) return;
       setStatus("Error: " + humanError(e));
     }
+  });
+
+  btnDisconnect.addEventListener("click", () => {
+    accessToken = null;
+    journalFileId = null;
+    currentJournalName = null;
+
+    setStatus("Disconnected from Drive.");
+    showLanding();
   });
 
   toggleShowPass.addEventListener("change", () => {
