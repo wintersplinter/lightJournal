@@ -10,20 +10,153 @@
     <main>
       <h1>Instructions</h1>
 
+      <p><a href="./">← Back to LightJournal</a></p>
+
+      <h2>What LightJournal is</h2>
+      <p>
+        LightJournal is a simple, encrypted journal. Entries are stored in your
+        own Google Drive (private app data). The app never needs a server. Your
+        passphrase is required to decrypt and read your journal.
+      </p>
+
       <h2>Quick start</h2>
       <ol>
         <li>Open LightJournal.</li>
-        <li>Connect Google Drive.</li>
-        <li>Enter your passphrase to open your journal.</li>
-        <li>Write a note and press Save.</li>
+        <li>
+          Press <strong>Connect to Google Drive</strong> and approve access.
+        </li>
+        <li>Enter your <strong>passphrase</strong>.</li>
+        <li>
+          If a journal exists for that passphrase, posts load automatically. If
+          not, write a note and press <strong>Save</strong> to create it.
+        </li>
       </ol>
 
-      <h2>Notes</h2>
+      <h2>Writing and saving</h2>
       <ul>
-        <li>Your journal is stored in your own Google Drive (app data).</li>
-        <li>Your passphrase is required to decrypt entries.</li>
-        <li>If you use a new passphrase, you’ll get a new journal.</li>
+        <li><strong>Write</strong> in the editor.</li>
+        <li>
+          Press <strong>Save</strong> to encrypt your note and upload it to
+          Google Drive. New posts appear at the top.
+        </li>
+        <li>
+          <strong>Live preview (latest)</strong> shows how your current note
+          will render (Markdown).
+        </li>
+        <li>
+          Empty notes are not saved (you’ll be asked to write something first).
+        </li>
       </ul>
+
+      <h2>Passphrase and journals</h2>
+      <p>
+        Your passphrase is the key to your journal. LightJournal uses the
+        passphrase to determine which journal file to open, and to
+        decrypt/encrypt content.
+      </p>
+      <ul>
+        <li><strong>Same passphrase</strong> → opens the same journal.</li>
+        <li>
+          <strong>Different passphrase</strong> → a different journal (separate
+          file).
+        </li>
+        <li>
+          If you type a passphrase that has no journal yet, nothing is created
+          until you press
+          <strong>Save</strong>.
+        </li>
+        <li>
+          The <strong>Show passphrase</strong> checkbox only changes visibility
+          on your screen. It does not change encryption.
+        </li>
+      </ul>
+
+      <h2>Encryption (important)</h2>
+      <ul>
+        <li>
+          Your notes are encrypted <strong>on your device</strong> before
+          upload.
+        </li>
+        <li>
+          The encrypted file is stored in your Google Drive
+          <strong>app data</strong> area.
+        </li>
+        <li>
+          If you forget the passphrase, the journal cannot be decrypted. There
+          is no recovery mechanism.
+        </li>
+      </ul>
+
+      <h2>Autosave draft (local safety)</h2>
+      <p>
+        While you type, LightJournal saves a draft locally in your browser so
+        you don’t lose text from accidental refresh or a crash. This draft:
+      </p>
+      <ul>
+        <li>is stored only on the current device/browser (local storage)</li>
+        <li>
+          is cleared automatically when you successfully press
+          <strong>Save</strong>
+        </li>
+        <li>
+          is not uploaded to Google Drive until you press <strong>Save</strong>
+        </li>
+      </ul>
+
+      <h2>Disconnecting and reconnecting</h2>
+      <ul>
+        <li>
+          Press <strong>Disconnect from Drive</strong> to return to a clean
+          start. Loaded posts and preview are cleared on disconnect.
+        </li>
+        <li>
+          If the session expires (for example after sleep), LightJournal may ask
+          you to reconnect. Your draft text stays in the editor.
+        </li>
+      </ul>
+
+      <h2>Markdown tips</h2>
+      <ul>
+        <li><strong>Blank line</strong> creates a new paragraph.</li>
+        <li>
+          A single Enter may not always create a line break in strict Markdown.
+          On mobile keyboards, trailing spaces can be removed automatically.
+        </li>
+        <li>
+          Use Markdown basics like <code>#</code> headings,
+          <code>**bold**</code>, <code>*italic*</code>, lists, and links.
+        </li>
+      </ul>
+
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li>
+          <strong>“Wrong passphrase”</strong>: the journal exists but cannot be
+          decrypted with the passphrase you entered. Double-check spelling and
+          keyboard layout.
+        </li>
+        <li>
+          <strong>“No journal yet for this passphrase”</strong>: write a note
+          and press Save to create the journal for that passphrase.
+        </li>
+        <li>
+          <strong>Reconnect needed</strong>: your Drive session expired. Press
+          Connect again.
+        </li>
+      </ul>
+
+      <h2>Data location</h2>
+      <p>
+        Journal files are stored in your Google Drive
+        <strong>Application data</strong> area (not in your normal Drive
+        folders). Uninstalling the app does not delete journals from Drive.
+      </p>
+
+      <hr />
+      <p style="opacity: 0.7">
+        LightJournal is intentionally simple. The core idea is: connect →
+        passphrase → write → save.
+      </p>
     </main>
   </body>
 </html>

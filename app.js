@@ -42,6 +42,27 @@ editorEl.addEventListener("input", () => {
   localStorage.setItem(DRAFT_KEY, editorEl.value);
 });
 
+async function devClearSwAndCaches() {
+  if (location.hostname !== "localhost" && location.hostname !== "127.0.0.1")
+    return;
+
+  // Unregister all service workers
+  if ("serviceWorker" in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const reg of regs) {
+      await reg.unregister();
+    }
+  }
+
+  // Clear all caches
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    for (const k of keys) {
+      await caches.delete(k);
+    }
+  }
+}
+
 // Restore draft on load
 const savedDraft = localStorage.getItem(DRAFT_KEY);
 if (savedDraft) {
@@ -63,7 +84,7 @@ async function driveFetch(url, options = {}) {
 
   if (r.status === 401) {
     accessToken = null;
-    journalFileId = null;
+    resetUiForDisconnect();
     showLanding();
     setStatus("Session expired. Please reconnect to Drive.");
     throw new Error("Unauthorized");
@@ -193,6 +214,26 @@ function escapeHtml(s) {
 function renderMarkdown(md) {
   const rawHtml = marked.parse ? marked.parse(md || "") : marked(md || "");
   return DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } });
+}
+
+function resetUiForDisconnect() {
+  // Clear rendered sensitive content
+  postsEl.innerHTML = "";
+  previewEl.innerHTML = "";
+
+  // Clear status and disable actions that require Drive/journal
+  btnSave.disabled = true;
+
+  // Optional: also clear any “loaded journal” state
+  journalFileId = null;
+  currentJournalName = null;
+  lastLoadedPass = "";
+
+  // Stop any pending autoload
+  if (autoLoadTimer) {
+    clearTimeout(autoLoadTimer);
+    autoLoadTimer = null;
+  }
 }
 
 function updatePreview() {
@@ -395,7 +436,9 @@ async function selectJournalIfExists(name) {
   return true;
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+  await devClearSwAndCaches();
+
   showLanding();
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
@@ -508,9 +551,7 @@ window.addEventListener("load", () => {
 
   btnDisconnect.addEventListener("click", () => {
     accessToken = null;
-    journalFileId = null;
-    currentJournalName = null;
-
+    resetUiForDisconnect();
     setStatus("Disconnected from Drive.");
     showLanding();
   });
