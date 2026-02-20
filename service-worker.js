@@ -1,5 +1,5 @@
 // Bump version before release
-const CACHE_NAME = "lightjournal-v2";
+const CACHE_NAME = "lightjournal-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ const ASSETS = [
   "./terms.html",
   "./instructions.html",
   "./privacy.html",
+  "./version.json",
 ];
 
 // INSTALL — cache files

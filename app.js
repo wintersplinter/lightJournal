@@ -436,8 +436,24 @@ async function selectJournalIfExists(name) {
   return true;
 }
 
+async function loadAppVersion() {
+  try {
+    const r = await fetch("./version.json");
+    if (!r.ok) return;
+
+    const data = await r.json();
+    const el = document.getElementById("appVersion");
+    if (el && data.version) {
+      el.textContent = "v" + data.version;
+    }
+  } catch {
+    // silent
+  }
+}
+
 window.addEventListener("load", async () => {
   await devClearSwAndCaches();
+  await loadAppVersion();
 
   showLanding();
   tokenClient = google.accounts.oauth2.initTokenClient({

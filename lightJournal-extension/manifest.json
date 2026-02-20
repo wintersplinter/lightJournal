@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LightJournal",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Opens LightJournal",
   "icons": {
     "16": "icon16.png",
